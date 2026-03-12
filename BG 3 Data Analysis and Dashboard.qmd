@@ -1,0 +1,184 @@
+---
+title: "Breweries & Digital Access"
+author: "Preethika Makineni and Shea Li"
+date: today
+format:
+  dashboard:
+    theme: cosmo
+    embed-resources: true
+---
+
+# Introducing the Topic
+
+## 1.1 Providing Topical Overview
+
+### Big Picture Questions
+
+**1. How does access to technology vary across cities in the United States; are there geographic patterns?**
+
+**2. Is there a relationship between the level of technology access in a city and the prevalence of third spaces (such as breweries)?**
+
+**3. Which cities have the highest number of breweries relative to their population size, and does that reveal anything about social norms?**
+
+### Background
+
+Over the past two decades, the internet has become integrated into everyday life across the world, especially in the United States. Access to technology shapes how people participate in social life. As increased technology use has led to social disconnect, some people are turning top the concept of "third spaces"—public places where people can gather, such as cafés and breweries. As digital access only increases across the country, it's interesting to see whether third spaces can coexist or whether online connectivity will eventually replace the need for them.
+
+This project explores the relationship between digital access and social spaces by examining a number of breweries across the nation alongside the number of households with internet access. We use breweries as an exemplary third space because they often serve as informal gathering points for people to socialize outside of daily life. Research from organizations like the Brewers Association shows that the craft brewing industry has been struggling in recent years, though breweries conceptually support social interaction and community.
+
+https://www.brewersassociation.org/statistics-and-data/national-beer-stats/
+
+To explore the relationship between these two sectors, we've used to datasets: one with information about breweries (https://data.census.gov/table/ACSST5Y2023.S2801?q=Internet+access+by+city+) and the other about households with computer access (https://github.com/openbrewerydb/openbrewerydb/blob/master/breweries.csv). We combined these datasets to observe potential patterns between digital presence and physical presence across different cities.
+
+This analysis addresses the question of how online and in-person social environments interact, or whether they even interact at all. In the aftermath of COVID-19, digital technologies have increasingly replaced things that used to be marked by physical interactipn, but a small community of people are trying to regain that connection through organization. Understanding this relationship can provide insight to how these contrasting lifestyles align (or don't align), and show how social spaces can still exist with digital and vice versa.
+
+However, there are still ethical considerations to be made in relation to these datasets. The technology access dataset may not fully capture differences in quality of access. Additionally, breweries are only one type of third space and may not be representative of all forms, since the presence of alchohol alienates audiences who are sober for personal or religious reasons. These datasets also aggregate data at a citywide level, which does not account for the difference in communities within these areas. Due to these limitations, we view these findings as exploratory, rather than conclusive.
+
+## 1.2 Providing Data Context
+
+### Brewery Dataset
+
+Link to the dataset's host page: https://www.openbrewerydb.org/
+
+This dataset was created and maintained in 2013 by Chris Mears through Open Brewery DB, an open-source project that compiles brewery data across the United States and internationally. The project collects public information about breweries, including their names, locations, and miscellaneous details.
+
+The original dataset contains 9083 records. The sample we used pulled information from the datset to include only breweries located within the United States, consisting of 472 recordings. Mears scraped the initial data from the Brewers Association. Each observation represents an individual brewery and includes information such as its geographic location and city. For our analysis, breweries were joined by location in order to view brewery prevalence on a geographic scale.
+
+A key strength of this dataset is its coverage across the United States, which allows for comparisons across regions and cities. However, it also has limitations. Not every brewery may be included or updated immediately, and the dataset does not capture how frequently people visit breweries to see how they operate socially. Therefore, while it can indicate where breweries exist, it cannot fully measure their popularity.
+
+### Internet Access Dataset
+
+Link to the dataset's host page: https://www.census.gov/programs-surveys/acs
+
+The technology access data used in this project is based on data from the U.S. Census Bureau, which collects information about households through the American Community Survey. The ACS gathers democraphic information across the United States each year. The dataset we used is from a 2023 survery titled "Types of Computers and Internet Subscriptions."
+
+The dataset includes information about the percentage of households with internet access in different geographic areas. These values represent statistics based on survey responses from households within those areas. In the sample of data we used, there were 659 records. Post-joining, there are 472.
+
+Thousands of households are sampled each year through the ACS, providing a large and nationally representative dataset. The data used in this project represents statistics for specific cities or regions, allowing comparisons between areas with varying levels of internet access.
+
+One benefit of this dataset is its large sample size and data collection methodology, which makes it a very reliable source of demographic data. However, limitations are marked by a lack information. Internet access statistics measure access, but they do not capture the quality of access, which is where true abilities in usage lie. As a result, the dataset is an indicator of digital connectivity but does not fully express how people interact with their technologies in daily life.
+
+```{r}
+#| include: false
+library(tidyverse)
+library(ggplot2)
+library(plotly)
+
+breweries_and_computer_access <- read.csv("breweries_and_computer_access.csv")
+```
+
+# Visualizations
+
+## 1. Which cities have the highest household internet access?
+
+```{r}
+breweries_and_computer_access <- breweries_and_computer_access |>
+  mutate(
+    internet_rate = households_with_internet / total_households,
+    internet_tier = case_when(
+      internet_rate >= 0.90 ~ "High (>= 90%)",
+      internet_rate >= 0.80 ~ "Medium (80–89%)",
+      TRUE ~ "Low (< 80%)"
+    )
+  )
+
+top_internet <- breweries_and_computer_access |>
+  arrange(desc(internet_rate)) |>
+  slice(1:15)
+
+ggplot(top_internet, aes(x = reorder(city, internet_rate), y = internet_rate, fill = internet_tier)) +
+  geom_col() +
+  coord_flip() +
+  scale_y_continuous(labels = scales::percent_format()) +
+  labs(
+    title = "Top 15 Cities by Household Internet Access Rate",
+    x = "City",
+    y = "Households with Internet (rate)",
+    fill = "Internet Tier"
+  )
+```
+
+This visualization ranks cities by the household internet access rate (households with internet divided by total households). It helps us quickly identify which cities have near-universal access in our joined dataset and whether the “top cities” are clustered tightly near 100%.
+
+## 2. Which cities have the highest number of breweries per 1,000 households?
+
+```{r}
+top_breweries_per_1000 <- breweries_and_computer_access |>
+  mutate(breweries_per_1000 = (num_breweries / total_households) * 1000) |>
+  arrange(desc(breweries_per_1000)) |>
+  slice(1:15) |>
+  select(city, total_households, num_breweries, breweries_per_1000)
+
+ggplot(top_breweries_per_1000, aes(x = reorder(city, breweries_per_1000), y = breweries_per_1000)) +
+  geom_col() +
+  coord_flip() +
+  labs(
+    title = "Top Cities by Breweries per 1,000 Households",
+    x = "City",
+    y = "Breweries per 1,000 households"
+  )
+```
+
+This chart compares cities using a normalized metric (breweries per 1,000 households) so that smaller and larger cities can be compared more fairly than using raw brewery counts alone.
+
+## 3. Do cities with higher internet access tend to support more breweries?
+
+```{r}
+p3 <- ggplot(breweries_and_computer_access) +
+  geom_point(
+    aes(
+      x = percentage_of_households_with_internet,
+      y = num_breweries,
+      color = percentage_of_households_with_internet,
+      text = paste0(
+        "City: ", city,
+        "<br>Internet: ", round(percentage_of_households_with_internet, 1), "%",
+        "<br>Breweries: ", num_breweries,
+        "<br>Total households: ", total_households
+      )
+    ),
+    alpha = 0.7
+  ) +
+  scale_color_gradient(
+    low = "gold",
+    high = "red",
+    name = "Percent w/ Internet"
+  ) +
+  labs(
+    title = "Number of Breweries vs Percentage of Households with Internet",
+    x = "Percentage of Households with Internet",
+    y = "Number of Breweries"
+  )
+
+ggplotly(p3, tooltip = "text")
+```
+
+This scatter plot helps evaluate whether higher internet access is associated with higher brewery counts. The pattern appears weak-to-moderate: many cities have high internet access, but brewery counts still vary widely, suggesting other factors also influence brewery prevalence.
+
+This scatter plot is interactive using Plotly. You can hover over each point to see the city name and the underlying values (internet access percentage, number of breweries, and total households). This makes it easier to spot outliers and compare cities with similar internet access rates but very different brewery counts, which is harder to do from a static chart alone.
+
+## Tools used:
+
+1.  mutate() to create new variables (internet_rate, internet_tier, breweries_per_1000)
+2.  case_when() inside mutate() to create a categorical variable (internet_tier) based on thresholds.
+3.  arrange() and desc() to rank cities by a metric (internet rate or breweries per 1,000 households).
+4.  slice() to select the top 15 cities after ranking.
+5.  select() to keep only the relevant columns for display.
+6.  ggplot(), geom_col(), geom_point(), and coord_flip() to build bar charts and a scatter plot.
+7.  scale_y_continuous(labels = scales::percent_format()) to display internet rates in a readable percent format.
+8.  scale_color_gradient() to add a gradient legend to the scatter plot.
+9.  labs() to ensure the plot titles, axis labels, and legend labels are human-readable.
+
+We used scales::percent_format() from the scales package to format the y-axis as percentages. This solves the problem of displaying internet rates as readable percent labels instead of decimals. We used it because the default decimal format is less intuitive than 92%. We learned to use this from the documentation and examples for scales and by searching how to format ggplot axes as percentages.
+
+We also used conditional transformation by creating internet_tier with case_when(). This helped us interpret the “top internet access” cities more clearly by grouping them into high, medium, low tiers instead of only listing raw percentages, which makes patterns easier to communicate.
+
+Additionally, we used the plotly library to add interactivity to our scatter plot by converting a ggplot object into an interactive visualization with plotly::ggplotly(). This adds hover tooltips, zooming, and panning so viewers can explore individual cities rather than only interpreting the overall trend. We included a custom tooltip (city name + key values) to make the plot more informative than the default hover behavior.
+
+# Conclusion
+
+Across our visualizations, three main takeaways emerged. First, the “Top 15 Cities by Household Internet Access Rate” chart shows that the highest-ranked cities in our dataset are all clustered very close to the upper bound, and they all fall into the High (≥ 90%) tier. This suggests that in the cities with the strongest internet access, household connectivity is nearly universal and there is not much variation among the very top cities. Second, the brewery-density chart (“Top Cities by Breweries per 1,000 Households”) highlights that brewery concentration is not the same as raw brewery count. A city like Portland stands out as an outlier with much higher breweries per 1,000 households than the other top cities, showing that normalizing by households changes the story and makes comparisons across differently sized cities more fair.
+
+Third, the scatter plot (“Number of Breweries vs Percentage of Households with Internet”) suggests that cities with higher internet access may support more breweries, but the relationship is not strong enough to treat internet access as a main driver. Most cities in the dataset already have relatively high internet access, yet brewery counts vary widely even among cities with similar internet percentages. This means the answer to our big-picture question is: higher internet access is consistent with having more breweries in some cases, but it does not reliably predict brewery counts on its own. Our results may overestimate any “internet → breweries” relationship because the joined dataset only includes cities that appear cleanly in both sources, and because brewery counts likely depend heavily on other factors like population size, tourism, income, and local culture.
+
+For future directions, we would improve this analysis by adding more context variables (for example: city population, income, education, or region/state) and by focusing on a consistent “per-capita” metric (such as breweries per 1,000 households) when comparing places. We would also explore whether the relationship changes when we remove extreme outliers (like Portland on the density chart) or when we look at different tiers of internet access rather than only the top cities. These steps would help clarify whether internet access is genuinely associated with brewery presence, or whether both variables are simply correlated with broader urban development patterns.
