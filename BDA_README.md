@@ -29,7 +29,6 @@ You should start by making a copy of this document. You can do this by clicking 
 *You can view the directions for your story pitch on the Project Proposal. Please write your pitch here!*
 
 As technology becomes increasingly integrated into everyday life, access to computers and reliable internet has become an important indicator of how people interact with the modern world. Internet access affects how people communicate, access information, and participate in digital spaces. At the same time, cities differ widely in terms of cultural environments, social spaces, and local businesses that shape community life. This project seeks to explore whether there is any relationship between technology access and certain cultural indicators within cities. Specifically, we are interested in examining whether the percentage of households with internet access in a city has any relationship with the number of breweries located there. Breweries are often considered social gathering spaces and can reflect aspects of a city’s local culture, economy, and lifestyle. Using a dataset from the U.S. Census that measures computer and internet access by household across cities in the United States, we hope to analyze patterns in digital connectivity. We then pair this dataset with an open-source dataset that lists breweries across the United States. By aggregating the brewery data to count how many breweries exist in each city, we can join the two datasets and examine possible relationships between internet access and brewery presence. For example, do cities with higher levels of internet access also tend to have more breweries? Or are these patterns largely unrelated? By asking these types of questions, we can explore how different aspects of urban life might intersect. This story is compelling because it connects two areas that might not seem directly related at first glance: technology infrastructure and local cultural businesses. By combining these datasets, we are able to explore whether broader patterns of modernization, urban development, and digital access may coincide with cultural and social spaces within cities. In visualization, the project will look for patterns between internet access and the number of breweries across cities. Scatter plots and other graphs will allow us to visually examine whether there appears to be any correlation between these variables. Ultimately, the goal of the project is not necessarily to prove a causal relationship, but rather to explore whether meaningful patterns exist when comparing digital access with cultural indicators at the city level.  
-| :---- |
 
 **Part II: Find a Dataset**
 
@@ -38,18 +37,15 @@ As technology becomes increasingly integrated into everyday life, access to comp
 [https://data.census.gov/table/ACSST5Y2023.S2801?q=Internet+access+by+city+](https://data.census.gov/table/ACSST5Y2023.S2801?q=Internet+access+by+city+) 
 
 [https://www.openbrewerydb.org/](https://www.openbrewerydb.org/) 
-| :---- |
 
-**“Why the Data”**
+**Why the Data**
 
 *Target Audience:*
 Our target audience includes researchers, students, and people who are interested in understanding patterns within cities and how digitization has affected more analog versions of modern life.  The first dataset focuses on household technology access across cities in the United States. It includes information about different types of computers and internet subscriptions. This dataset is compelling because internet access is increasingly tied to participation in modern society, including education, employment, and general communication. The second dataset contains information about breweries across the United States. For the sake of this project, we’re considering breweries as a placeholder for all “third spaces.” The prevalence of social gatherings may be affected by rising internet culture, and that’s something we hope to examine through this project. 
-| :---- |
 
-**“About the Data”**
+**About the Data**
 
 We downloaded the data from the US Census Website. There are 32332 observations (rows) and 127 features (columns) in the dataset. Some features that I believe I could find in another dataset are gender and income.  
-| :---- |
 
 **Part III: Background Research/Inspiration**
 
@@ -72,7 +68,6 @@ This report discusses efforts to expand broadband access federally. It could hel
 [https://www.telecompetitor.com/eight-million-americans-still-offline-connectivity-report/?](https://www.telecompetitor.com/eight-million-americans-still-offline-connectivity-report/?) 
 
 The link shows how internet access in the U.S. has changed over time, while also highlighting those who still lack it. The article also shows how access varies by state. It could help provide information for our project by explaining regional trends. It highlights the importance of the internet and why this project is relevant. The article focuses on national and state-level exploration, while our dataset works at the city level. However, it can still help provide context.  
-| :---- |
 
 **Part IV: Group Agreement**
 
